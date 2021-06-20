@@ -1,3 +1,3 @@
 # raytracer
 
-C++ based RayTracer outputs static images to *.ppm* format.
+C++ based RayTracer , outputs static images to *.ppm* format.
