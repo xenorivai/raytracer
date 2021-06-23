@@ -2,78 +2,89 @@
 #define VEC3_H
 
 #include <cmath>
-#include<iostream>
-#include<fstream>
-
-using std::sqrt;
+#include <iostream>
+#include <fstream>
 
 class vec3{
-private:
+public:
 	double x , y , z;
 public:
-	vec3() : x(0.f), y(0.f) , z(0.f) {}
-	vec3(double a , double b , double c) : x(a) , y(b) , z(c){}
+	//default constructor initialises to 0
+	vec3() : x(0) , y(0) , z(0) {}
 
-	vec3 operator -  (void) const{return vec3(-(this->x) , -(this->y) , -(this->z));}
+	//paramaterised constructor
+	vec3(double X , double Y , double Z) : x(X) , y(Y) , z(Z){}
 
-	vec3& operator += (const vec3 &v) {
-		this->x += v.x;
-		this->y += v.y;
-		this->z += v.z;
+	double getX() const { return x; }
+	double getY() const { return y; }
+	double getZ() const { return z; }
+
+	vec3 operator-() const{
+		return vec3(-x , -y , -z);
+	}
+
+	vec3& operator+= (const vec3 *v){
+		x += v->x;
+		y += v->y;
+		z += v->z;
 
 		return *this;
 	}
 
-	vec3& operator *= (const double t){
-		this->x *= t;
-		this->y *= t;
-		this->z *= t;
+	vec3 &operator*=(const double t) {
+		x *= t;
+		y *= t;
+		z *= t;
 
 		return *this;
 	}
 
-	vec3& operator /= (const double t){
-		return *this *= (1/t);
+	vec3& operator/=(const double t){
+		return (*this) *= 1/t;
 	}
 
-	double length(void) const{
-		return sqrt(x*x + y*y + z*z);
+	double length() const{
+		return std::sqrt(x*x + y*y + z*z);
 	}
 
-	inline std::ostream& operator<<(std::ostream& out , const vec3 &v){
-		return out << v.x << ' ' << v.y << ' ' << v.z;
+	friend inline std::ostream& operator<<(std::ostream &out , const vec3 &v){
+		return out << v.x << ' ' << v.y << ' ' << v.z ;
 	}
 
-	inline vec3 operator+ (const vec3 &u , const vec3 &v){
-		return vec3(u.x + v.x , u.y + v.y ; u.z + v.z);
+	friend inline vec3 operator+(const vec3 &u , const vec3 &v){
+		return vec3(u.x + v.x, u.y + v.y, u.z + v.z);
 	}
 
-	inline vec3 operator- (const vec3 &u , const vec3 &v){
-		return vec3(u.x - v.x , u.y - v.y ; u.z - v.z);
+	friend inline vec3 operator-(const vec3 &u, const vec3 &v){
+		return vec3(u.x - v.x, u.y - v.y, u.z - v.z);
 	}
 
-	inline vec3 operator* (double t , const vec3 &v){
-		return vec3(t * v.x , t * v.y , t * v.z);
+	friend inline vec3 operator*(const vec3 &u, const vec3 &v){
+		return vec3(u.x * v.x, u.y * v.y, u.z * v.z);
 	}
 
-	inline vec3 operator* (const vec3 &v , double t){
-		return t * v;
+	friend inline vec3 operator*(const vec3 &v , double t){
+		return vec3(v.x * t , v.y * t , v.z * t);
 	}
 
-	inline vec3 operator/ (vec3 &v, double t) {
-    	return (1/t) * v;
+	friend inline vec3 operator*(double t , const vec3 &v ){
+		return v * t;
 	}
 
-	inline double dot (const vec3 &u , const vec3& v){
-		return (u.x*v.x + u.y*v.y + u.z*v.z);
+	friend inline vec3 operator/(const vec3 &v , double t){
+		return v * (1/t) ;
 	}
 
-	inline vec3 cross (const vec3 &u , const vec3& v){
+	friend inline double dot(const vec3 &u , const vec3 &v){
+		return u.x * v.x + u.y * v.y + u.z * v.z ;
+	}
+
+	friend inline vec3 cross(const vec3 &u , const vec3 &v){
 		return vec3(u.y*v.z - v.y*u.z , v.x*u.z - u.x*v.z , u.x*v.y - v.x*u.y);
 	}
 
-	inline vec3 unit_vector(vec3 v){
-		return v * (1/v.length());
+	friend inline vec3 unit_vector(const vec3 &v){
+		return v / v.length();
 	}
 
 };
