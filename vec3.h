@@ -46,48 +46,51 @@ public:
 	double length() const{
 		return std::sqrt(x*x + y*y + z*z);
 	}
-
-	friend inline std::ostream& operator<<(std::ostream &out , const vec3 &v){
-		return out << v.x << ' ' << v.y << ' ' << v.z ;
+	double length_sq() const{
+		return (x*x + y*y + z*z);
 	}
-
-	friend inline vec3 operator+(const vec3 &u , const vec3 &v){
-		return vec3(u.x + v.x, u.y + v.y, u.z + v.z);
-	}
-
-	friend inline vec3 operator-(const vec3 &u, const vec3 &v){
-		return vec3(u.x - v.x, u.y - v.y, u.z - v.z);
-	}
-
-	friend inline vec3 operator*(const vec3 &u, const vec3 &v){
-		return vec3(u.x * v.x, u.y * v.y, u.z * v.z);
-	}
-
-	friend inline vec3 operator*(const vec3 &v , double t){
-		return vec3(v.x * t , v.y * t , v.z * t);
-	}
-
-	friend inline vec3 operator*(double t , const vec3 &v ){
-		return v * t;
-	}
-
-	friend inline vec3 operator/(const vec3 &v , double t){
-		return v * (1/t) ;
-	}
-
-	friend inline double dot(const vec3 &u , const vec3 &v){
-		return u.x * v.x + u.y * v.y + u.z * v.z ;
-	}
-
-	friend inline vec3 cross(const vec3 &u , const vec3 &v){
-		return vec3(u.y*v.z - v.y*u.z , v.x*u.z - u.x*v.z , u.x*v.y - v.x*u.y);
-	}
-
-	friend inline vec3 unit_vector(const vec3 &v){
-		return v / v.length();
-	}
-
 };
+
+inline std::ostream& operator<<(std::ostream &out , const vec3 &v){
+	return out << v.x << ' ' << v.y << ' ' << v.z ;
+}
+
+inline vec3 operator+(const vec3 &u , const vec3 &v){
+	return vec3(u.x + v.x, u.y + v.y, u.z + v.z);
+}
+
+inline vec3 operator-(const vec3 &u, const vec3 &v){
+	return vec3(u.x - v.x, u.y - v.y, u.z - v.z);
+}
+
+inline vec3 operator*(const vec3 &u, const vec3 &v){
+	return vec3(u.x * v.x, u.y * v.y, u.z * v.z);
+}
+
+inline vec3 operator*(const vec3 &v , double t){
+	return vec3(v.x * t , v.y * t , v.z * t);
+}
+
+inline vec3 operator*(double t , const vec3 &v ){
+	return v * t;
+}
+
+inline vec3 operator/(const vec3 &v , double t){
+	return v * (1/t) ;
+}
+
+inline double dot(const vec3 &u , const vec3 &v){
+	return u.x * v.x + u.y * v.y + u.z * v.z ;
+}
+
+inline vec3 cross(const vec3 &u , const vec3 &v){
+	return vec3(u.y*v.z - v.y*u.z , v.x*u.z - u.x*v.z , u.x*v.y - v.x*u.y);
+}
+
+inline vec3 unit_vector(const vec3 &v){
+	return v / v.length();
+}
+
 
 using point3 = vec3;
 using color = vec3;

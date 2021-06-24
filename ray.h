@@ -12,14 +12,12 @@ public:
 public:
     //default constructor
     ray() {}
-    ray(const point3 &origin , const vec3 &direction) 
-		: orig(origin) , dir(direction)
-	{}
+    ray(const point3 &origin , const vec3 &direction) : orig(origin) , dir(direction) {}
 
 	point3 origin() const  { return orig; }
 	vec3 direction() const { return dir; }
 
-	//coordinates of a point at distance 't' from origin
+	//coordinates of a point at distance 't' from origin : r = a + t*b
 	point3 at(double t) const{
 		return orig + t*dir;
 	}

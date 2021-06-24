@@ -4,3 +4,4 @@ main: main.cpp vec3.h color.h ray.h
 clean:
 	rm -rf *.o
 	rm -rf *.ppm
+	rm -rf main
