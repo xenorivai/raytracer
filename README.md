@@ -6,7 +6,7 @@ To compile and build on your system :
 
 `make main`
 
-To delete executable and out.ppm :
+To delete `main` (executable) and  `out.ppm` :
 
 `make clean`
 
