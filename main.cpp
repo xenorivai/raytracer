@@ -46,7 +46,7 @@ int main(){
 
 
 	//sphere-1
-	sphere s(point3(-0.5,0.5,-1),0.15);
+	sphere s(point3(0.0,0.0,-1),0.5);
 	hit_record sphere_record;
 
 	//sphere-2
