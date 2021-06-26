@@ -1,37 +1,13 @@
 #include "vec3.h"
 #include "color.h"
 #include "ray.h"
+#include "sphere.h"
 
-double sphere_intersect(const point3 &center , double radius , const ray &r){
-	//vec from ray origin to center of sphere
-	vec3 OC =  r.orig - center;
-	double b = dot(r.dir,OC);
-	double a = (r.dir.length())*(r.dir.length());
-	double c = (OC.length())*(OC.length()) - radius*radius;
+color ray_color(const ray &r, sphere &s , hit_record &record){
 
-	double dis = b*b - a*c;
-
-	//no hit
-	if(dis < 0){
-		return -1;
-	}
-
-	//return closest hit point
-	//b > 0 as [ acos(dot(r.dir,OC)/b.length()) < pi/2 ]
-	else{
-		return (-b - std::sqrt(dis)/ (a) );
-	}
-}
-
-
-color ray_color(const ray &r){
-	//sphere
-	point3 center(0,0,-1);
-	double t = sphere_intersect(center , 0.5 , r);
-	//if intersect at distance 't' from ray origin
-	if(t > 0){
-		vec3 N = unit_vector(r.at(t) - center);//Normal at point of intersection
-		return color(0.5*(N.x + 1.0),0.5*(N.y + 0.25),0.5*(N.z + 0.75));
+	//sphere-intersection
+	if(s.hit(r,0.0,1.0,record)){
+		return color(0.5*(record.normal.x + 1.0),0.15*(record.normal.y + 0.75),0.45*(record.normal.z + 0.75));
 	}
 
 	//linearly interpolated blended background
@@ -40,10 +16,10 @@ color ray_color(const ray &r){
 	*/
 	vec3 unit_dir = unit_vector(r.direction());
 	double p = 0.5*(unit_dir.getY() + 1.0);
-	return (1.0 - p)*color(0,0,0) + p*color(0.964,0.69,0.69);//0.50588235294
+	return (1.0 - p)*color(0,0,0) + p*color(0.964,0.69,0.50588235294); // linear gradient from complete black to some color
 	
 	//black bg
-	// return (1.0 - p)*color(0,0,0) + p*color(0.5,0.5,0.5);
+	// return (1.0 - p)*color(0,0,0) + p*color(0.5,0.5,0.5); // kinda grayscale bg
 }
 
 
@@ -67,6 +43,16 @@ int main(){
 	vec3 vertical(0,view_H,0); // unt vector along Y-axis
 	point3 lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0,0,focal_length);
 	
+
+
+	//sphere-1
+	sphere s(point3(-0.5,0.5,-1),0.15);
+	hit_record sphere_record;
+
+	//sphere-2
+	// sphere c(point3(0.5,0.5,-1),0.15);
+	// hit_record sphere_recordC;
+
 	//Render to out.ppm
 	std:: ofstream fout;
 	fout.open("./out.ppm");
@@ -79,8 +65,10 @@ int main(){
             auto u = double(j) / (image_width-1);
             auto v = double(i) / (image_height-1);
             ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r , s , sphere_record);
+			// color pixel_colorC = ray_color(r , c , sphere_recordC);//second sphere
             write_color(fout, pixel_color);
+			// write_color(fout, pixel_colorC);//second sphere
         }
     }
 	fout.close();
