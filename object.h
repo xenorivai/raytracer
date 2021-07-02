@@ -14,6 +14,14 @@ struct hit_record{
 	point3 p;
 	vec3 normal;
 	double t;
+	bool front_face;
+
+
+	inline void set_face_normal(const ray &r , const vec3 &out_normal){
+		//front_face is true if ray is outside sphere false otherwise
+		front_face = dot(r.direction(),out_normal);
+		normal = front_face ? out_normal : -out_normal;
+	}
 };
 
 class object{

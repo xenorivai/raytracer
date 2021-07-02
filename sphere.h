@@ -40,7 +40,8 @@ bool sphere :: hit(const ray& r , double t_min , double t_max , hit_record& reco
 	//update record values
 	record.t = root;//distance
 	record.p = r.at(root);//point of intersection
-	record.normal = (record.p - center) / radius; // unit normal vector
+	vec3 out_normal = (record.p - center) / radius; // unit outward normal vector 
+	record.set_face_normal(r,out_normal);
 
 	return true;
 }
