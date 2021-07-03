@@ -5,9 +5,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-
-#include"ray.h"
-
+#include "raytracer.h"
 
 //holds information of point of intersection , normal at pt of intersection , and distance from ray's origin(t)
 struct hit_record{

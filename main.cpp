@@ -4,22 +4,30 @@
 #include "object_list.h"
 #include "camera.h"
 
-color ray_color(const ray &r, const object_list &world){
+color ray_color(const ray &r, const object_list &world , int depth){
 
 	hit_record temp_record;
+	
+	if(depth <= 0) return color(0,0,0);
 
-	//if ray r hits 'any' object in world, store info in hit_record record
-	if(world.hit(r , 0 , infinity , temp_record)){
-		return 0.5*(temp_record.normal + color(1,0.2,0.5));
+	//if ray r hits 'any' object in world, store info in hit_record temp_record
+	if(world.hit(r , 0.001 , infinity , temp_record)){
+		
+		//random target in outside unit_sphere
+		point3 target = temp_record.p + temp_record.normal + random_unit_vector(); 
+		// point3 target = temp_record.p  + random_in_hemisphere(temp_record.normal); //hemispherical scaterring
+
+		//send new ray towards target from pt of intersection to a random point in the unit sphere
+		return 0.5 * ray_color(ray(temp_record.p, target - temp_record.p), world , depth - 1);
 	}
 
 	//linearly interpolated blended background
 	/*	Gives color to a ray endpoint(pixel) on projection plane relative to its height,
-		darker pixels at bottom , 
+		darker pixels at bottom
 	*/
 	vec3 unit_dir = unit_vector(r.direction());
 	double p = 0.5*(unit_dir.getY() + 1.0);
-	return (1.0 - p)*color(0,0,0) + p*color(0.964,0.69,0.50588235294); // linear gradient from complete black to some color
+	return (1.0 - p)*color(0,0,0) + p*color(0.964,0.1,0.1); // linear gradient from complete black to some color
 	
 	//black bg
 	// return (1.0 - p)*color(0,0,0) + p*color(0.5,0.5,0.5); // kinda grayscale bg
@@ -33,6 +41,7 @@ int main(){
 	const int image_width = 1024;
 	const int image_height = int(image_width/aspect_ratio);
 	const int samples_per_pixel = 100;
+	const int max_depth = 50; //recursion depth for ray_color()
 
 	//World
 	object_list world;
@@ -55,11 +64,16 @@ int main(){
         for (int j = 0; j < image_width; j++) {
             color pixel_color = color(0,0,0);
 			for(int s = 0 ; s < samples_per_pixel; s++){
+				/*
+					- for each sample pick a random spot on the pixel and pass ray through it
+					- then add color for that sample to pixel color
+					- in write_color() average out the effect of multisampling by dividing by samples_per_pixel				
+				*/
 				auto u = double(j + random_double()) / (image_width-1);
-        	    auto v = double(i + random_double()) / (image_height-1);
+        	    auto v = double(i - random_double()) / (image_height-1);
 
 				ray r = cam.get_ray(u,v);
-				pixel_color = pixel_color + ray_color(r,world);
+				pixel_color = pixel_color + ray_color(r,world,max_depth);
 			}
             write_color(fout, pixel_color , samples_per_pixel);
         }

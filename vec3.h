@@ -49,6 +49,20 @@ public:
 	double length_sq() const{
 		return (x*x + y*y + z*z);
 	}
+
+	inline static vec3 random(void){
+		return vec3(random_double() , random_double() , random_double());
+	}
+
+	inline static vec3 random(double min , double max){
+		return vec3(random_double(min,max) , random_double(min,max) , random_double(min,max));
+	}
+
+	bool near_zero(void) const{
+		const auto s = 1e-8;
+		return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s);
+	}
+
 };
 
 inline std::ostream& operator<<(std::ostream &out , const vec3 &v){
@@ -91,6 +105,23 @@ inline vec3 unit_vector(const vec3 &v){
 	return v / v.length();
 }
 
+vec3 random_in_unit_sphere(void){
+	while(true){
+		vec3 p = vec3 :: random(-1,1);
+		if(p.length_sq() >= 1) continue;
+		else return p;
+	}
+}
+
+vec3 random_unit_vector(){
+	return unit_vector(random_in_unit_sphere());
+}
+
+vec3 random_in_hemisphere (const vec3 &normal) {
+	vec3 in_unit_sphere = random_in_unit_sphere();
+	if(dot(in_unit_sphere , normal) > 0.0) return in_unit_sphere;
+	else return -in_unit_sphere;
+}
 
 using point3 = vec3;
 using color = vec3;
