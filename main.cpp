@@ -1,8 +1,11 @@
 #include "raytracer.h"
 #include "color.h"
-#include "sphere.h"
-#include "object_list.h"
 #include "camera.h"
+#include "object_list.h"
+#include "sphere.h"
+#include "material.h"
+#include <iostream>
+
 
 color ray_color(const ray &r, const object_list &world , int depth){
 
@@ -10,15 +13,15 @@ color ray_color(const ray &r, const object_list &world , int depth){
 	
 	if(depth <= 0) return color(0,0,0);
 
-	//if ray r hits 'any' object in world, store info in hit_record temp_record
+	//if ray r hits 'any' object in world,store info in temp_record which is a hit_record
 	if(world.hit(r , 0.001 , infinity , temp_record)){
-		
-		//random target in outside unit_sphere
-		point3 target = temp_record.p + temp_record.normal + random_unit_vector(); 
-		// point3 target = temp_record.p  + random_in_hemisphere(temp_record.normal); //hemispherical scaterring
 
-		//send new ray towards target from pt of intersection to a random point in the unit sphere
-		return 0.5 * ray_color(ray(temp_record.p, target - temp_record.p), world , depth - 1);
+		ray scattered;//after hitting 'any' object the scattered ray
+		color scattered_color;
+		if(temp_record.mat_ptr->scatter(r,temp_record,scattered_color,scattered)){
+			return scattered_color * ray_color(scattered,world,depth-1);
+		}
+		else return color(0,0,0);
 	}
 
 	//linearly interpolated blended background
@@ -26,41 +29,58 @@ color ray_color(const ray &r, const object_list &world , int depth){
 		darker pixels at bottom
 	*/
 	vec3 unit_dir = unit_vector(r.direction());
-	double p = 0.5*(unit_dir.getY() + 1.0);
-	return (1.0 - p)*color(0,0,0) + p*color(0.964,0.1,0.1); // linear gradient from complete black to some color
-	
-	//black bg
-	// return (1.0 - p)*color(0,0,0) + p*color(0.5,0.5,0.5); // kinda grayscale bg
+	double p = 0.5*(unit_dir.getY() + 1.0);	
+	return (1.0 - p)*color(0,0,0) + p*color(0.5,0.5,0.5); 
 }
 
 
 int main(){
 
 	//Image properties
-	const auto aspect_ratio = 16.0 / 9.0;
-	const int image_width = 1024;
+	const double aspect_ratio = 16.0 / 9.0;
+	const int image_width = 800;
 	const int image_height = int(image_width/aspect_ratio);
-	const int samples_per_pixel = 100;
-	const int max_depth = 50; //recursion depth for ray_color()
+	const int samples_per_pixel = 200;
+	const int max_depth = 400; //recursion depth for ray_color(), also bounce limit for each ray
 
 	//World
 	object_list world;
-	world.add(make_shared<sphere>(point3(0,0,-1), 0.5));//sphere object
-	world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));//sphere object
-	//Image has small sphere above big sphere because small spehere closer than big sphere
+	//Image has small spheres above big sphere because small spehere closer than big sphere
 
+	// auto _ground = make_shared<lambertian>(color(0.8,0.4,0.1));
+	// auto _ground = make_shared<dielectric>(1.5);
+	// auto _center = make_shared<metal>(color(0.7, 0.1, 0.1));
+    // // auto _left   = make_shared<metal>(color(0.8, 0.8, 0.8));
+	// auto _left   = make_shared<dielectric>(1.5);
+    // auto _right  = make_shared<metal>(color(0.1, 0.1, 0.7));
+
+	auto _ground = make_shared<dielectric>(1.5);
+	auto _center = make_shared<dielectric>(1.5);
+	auto _left   = make_shared<dielectric>(1.5);
+	auto _right  = make_shared<metal>(color(0.8, 0.1, 0.5), 0.9);
+
+	world.add(make_shared<sphere>(point3(0,-100.5,-1),100.0,_ground));
+	world.add(make_shared<sphere>(point3(0,0,-1),0.5,_center));
+	world.add(make_shared<sphere>(point3(0,0,-2),0.3,_right));
+	world.add(make_shared<sphere>(point3(-1.0,0.5,-1),0.5,_left));
+	world.add(make_shared<sphere>(point3(1.0,0.5,-1),0.5,_right));
 
 	//Camera
-	camera cam;
+	camera cam(90,aspect_ratio);
 
 	//Render to out.ppm
-	std:: ofstream fout;
-	fout.open("./out.ppm");
+	const char *path = "./out.ppm";
+	std:: ofstream fout(path);
 
 	fout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
 	for (int i = image_height-1; i >= 0; i--) {
-        std::cerr << "\rScanlines remaining: " << i << ' ' << std::flush;
+		// if(i%5 == 0) std :: cout << "\r -" << std :: flush;
+		// else if(i%5 == 1) std :: cout << "\r \\" << std :: flush;
+		// else if(i%5 == 2) std :: cout << "\r |" << std :: flush;
+		// else if(i%5 == 3) std :: cout << "\r /" << std :: flush;
+		// else std :: cout << "\r -" << std :: flush;
+		std :: cerr << "\rRemaining : " << i << ' ' << std :: flush;
         for (int j = 0; j < image_width; j++) {
             color pixel_color = color(0,0,0);
 			for(int s = 0 ; s < samples_per_pixel; s++){

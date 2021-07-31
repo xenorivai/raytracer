@@ -8,11 +8,11 @@ class sphere : public object{
 public:
 	point3 center;
 	double radius;
+	shared_ptr<material> mat_ptr;
 public:
 	sphere(){}
-	sphere(point3 c , double r) : center(c) , radius(r){}
+	sphere(point3 c , double r , shared_ptr<material> m) : center(c) , radius(r) , mat_ptr(m){}
 
-	//simple polymorphism
 	virtual bool hit(const ray& r , double t_min , double t_max , hit_record& record) const;
 };
 
@@ -42,6 +42,7 @@ bool sphere :: hit(const ray& r , double t_min , double t_max , hit_record& reco
 	record.p = r.at(root);//point of intersection
 	vec3 out_normal = (record.p - center) / radius; // unit outward normal vector 
 	record.set_face_normal(r,out_normal);
+	record.mat_ptr = mat_ptr;
 
 	return true;
 }

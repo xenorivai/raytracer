@@ -23,7 +23,7 @@ void write_color(std::ofstream &fout , color &pixel_color , int samples_per_pixe
 		and then divide at the end by the number of samples when writing out the color
 	*/
 
-	//gamma correction with gamma = 2
+	/* gamma correction ,with gamma = 2 */
 	r = sqrt(r / samples_per_pixel);
 	g = sqrt(g / samples_per_pixel);
 	b = sqrt(b / samples_per_pixel);

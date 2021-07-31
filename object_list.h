@@ -27,7 +27,7 @@ bool object_list :: hit (const ray& r , double t_min , double t_max , hit_record
 
 	/*
 		How it works? -- 
-		For each ray check if the ray hits ANY of the object in the object_list(in particular if any ray hits any sphere in world) , then 
+		For each ray check if the ray hits ANY object in the object_list(in particular if any ray hits any sphere in world) , then 
 			set hit_anything to high
 			update closest object to the pixel
 

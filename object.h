@@ -1,11 +1,9 @@
-/*
-	Container class for abstract hittable object
-*/
-
 #ifndef OBJECT_H
 #define OBJECT_H
 
 #include "raytracer.h"
+
+class material;
 
 //holds information of point of intersection , normal at pt of intersection , and distance from ray's origin(t)
 struct hit_record{
@@ -13,7 +11,7 @@ struct hit_record{
 	vec3 normal;
 	double t;
 	bool front_face;
-
+	shared_ptr<material> mat_ptr;
 
 	inline void set_face_normal(const ray &r , const vec3 &out_normal){
 		//front_face is true if ray is outside sphere false otherwise

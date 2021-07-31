@@ -11,11 +11,12 @@ private:
 	vec3 vertical;// unit vector along Y-axis
 
 public:
-	camera(){
-		const auto aspect_ratio = 16.0 / 9.0;
+	camera(double vfov , double aspect_ratio){
+		double theta = degrees_to_radians(vfov);
+		double h = std::tan(theta/2);
 		
 		/* Viewport : Through which rays are passed */
-		auto view_H = 2.0; // viewport height
+		auto view_H = 2.0*h; // viewport height
 		auto view_W = aspect_ratio * view_H; // viewport width
 		auto focal_length = 1.0; // distance b/w projection plane and projection point
 		origin = point3(0,0,0);
