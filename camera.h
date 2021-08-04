@@ -11,22 +11,28 @@ private:
 	vec3 vertical;// unit vector along Y-axis
 
 public:
-	camera(double vfov , double aspect_ratio){
+	camera(point3 lf , point3 la , vec3 vup , double vfov , double aspect_ratio){
 		double theta = degrees_to_radians(vfov);
 		double h = std::tan(theta/2);
+		
 		
 		/* Viewport : Through which rays are passed */
 		auto view_H = 2.0*h; // viewport height
 		auto view_W = aspect_ratio * view_H; // viewport width
-		auto focal_length = 1.0; // distance b/w projection plane and projection point
-		origin = point3(0,0,0);
-		horizontal = vec3(view_W, 0.0 , 0.0);
-		vertical = point3(0.0,view_H,0.0);
-		lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0,0,focal_length);
+		
+		/*Orthogonal Basis for camera movement*/
+		vec3 w = unit_vector(lf-la);//lookfrom-lookat axis
+		vec3 u = unit_vector(cross(vup,w));
+		vec3 v = cross(w,u);		
+		
+		origin = lf;
+		horizontal = view_W * u;
+		vertical = view_H * v;
+		lower_left_corner = origin - horizontal/2 - vertical/2 - w;
 	}
 
-	ray get_ray(double u , double v) const{
-		return ray(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+	ray get_ray(double x , double y) const{
+		return ray(origin, lower_left_corner + x*horizontal + y*vertical - origin);
 	}
 };
 

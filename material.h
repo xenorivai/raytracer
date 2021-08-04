@@ -16,7 +16,7 @@ public:
 public:
 	lambertian(const color &a) : _color(a) {}
 
-	virtual bool scatter(const ray &ray_in , const struct hit_record &rec , color &scattered_color , ray &scattered) const {
+	virtual bool scatter(const ray &ray_in , const struct hit_record &rec , color &scattered_color , ray &scattered) const override{
 
 		auto scatter_direction = rec.normal + random_unit_vector();
 		
@@ -38,7 +38,7 @@ public:
 public:
 	metal(const color &a, double f = 0) : _color(a),fuzz(f){}
 
-	virtual bool scatter(const ray &ray_in , const struct hit_record &rec , color &scattered_color , ray &scattered) const {
+	virtual bool scatter(const ray &ray_in , const struct hit_record &rec , color &scattered_color , ray &scattered) const override {
 
 		vec3 reflected_direction = reflect(unit_vector(ray_in.direction()) , rec.normal);
 
@@ -52,40 +52,40 @@ public:
 //refractive materials
 class dielectric : public material{
 public:
-	double ri;//refractive index
+	double ri;
+private:
 	static double probability_of_reflection(double cos_theta , double ri){
+		//Schlick's approximation for prob of reflection
 		double r0 = (1-ri)/(1+ri);
 		r0 = r0*r0;
 		return r0 + (1-r0)*pow((1-cos_theta),5);
 	}
-
 public:
-	dielectric(double refractive_index) : ri(refractive_index){}
+	dielectric(double idx) : ri(idx){}
 
-	virtual bool scatter(const ray &ray_in , const struct hit_record &rec , color &scattered_color , ray &scattered) const{
+	virtual bool scatter(const ray &ray_in , const hit_record &rec , color &scattered_color , ray &scattered) const override{
+
 		scattered_color = color(1,1,1);
 
-		//assume outside surface is air , ri = 1(for air)
-		double refractive_idx_ratio = rec.front_face ? (1/ri) : ri;
+		double ratio = rec.front_face? (1/ri) : ri;
 
-		vec3 ray_in_unit = unit_vector(ray_in.direction());
+		vec3 incident_unit_vector = unit_vector(ray_in.direction());
+		double cos_theta = fmin(dot(incident_unit_vector,rec.normal),1.0);
+		double sin_theta = sqrt(1-cos_theta*cos_theta);
 
-		double cos_theta = fmin(dot(-ray_in_unit,rec.normal),1.0);
-		double sin_theta = sqrt(1 - cos_theta*cos_theta);
+		bool cannot_reflect = ratio * sin_theta > 1;
+
 		vec3 refracted_direction;
-
-		if(refractive_idx_ratio*sin_theta > 1.0 || probability_of_reflection(cos_theta,ri) > random_double()){
-			refracted_direction	= reflect(ray_in_unit , rec.normal);
+		if(cannot_reflect || probability_of_reflection(cos_theta,ri) > random_double() ){
+			refracted_direction = reflect(incident_unit_vector,rec.normal);
 		}
-		else {
-			refracted_direction = refract(ray_in_unit,rec.normal , refractive_idx_ratio);
-		}	
+		else{
+			refracted_direction = refract(incident_unit_vector,rec.normal,ratio);
+		}
 
-		scattered = ray(rec.p,refracted_direction);
-
+		scattered = ray(rec.p, refracted_direction);
 		return true;
 	}
-	
 };
 
 #endif

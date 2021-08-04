@@ -129,20 +129,12 @@ inline vec3 reflect(const vec3 &v , const vec3 &n){
 	return v - 2*dot(v,n)*n;
 }
 
-inline vec3 refract(const vec3 &v , const vec3 &n , double ri_ratio ){
-	double cos_i = dot(v,n);
-	vec3 r1 = sqrt(1 - ( (ri_ratio*ri_ratio) * (1 - (cos_i*cos_i) ) ) )*n;
-	vec3 r2 = ri_ratio*(v-(cos_i)*n);
+inline vec3 refract(const vec3 &i , const vec3 &n , double &ratio){
+	double cos_i = fmin(dot(i,n),1.0);
+	double c2 = sqrt(1-(ratio*ratio)*(1-(cos_i*cos_i)));
 
-	return r1+r2;
+	return ratio*i + (ratio*cos_i - c2)*n;
 }
-
-// inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
-//     auto cos_theta = fmin(dot(-uv, n), 1.0);
-//     vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
-//     vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_sq())) * n;
-//     return r_out_perp + r_out_parallel;
-// }
 
 using point3 = vec3;
 using color = vec3;

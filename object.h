@@ -5,7 +5,7 @@
 
 class material;
 
-//holds information of point of intersection , normal at pt of intersection , and distance from ray's origin(t)
+//holds information of point of intersection ,normal at pt of intersection ,and distance from ray's origin(t)
 struct hit_record{
 	point3 p;
 	vec3 normal;
